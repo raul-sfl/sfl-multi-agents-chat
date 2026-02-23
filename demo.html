@@ -258,14 +258,16 @@
 
   <!-- ── Widget configuration (simulating GTM injection) ── -->
   <script>
+    var _proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    var _host  = window.location.host || 'localhost:8000';
     window.StayforlongChat = {
-      wsUrl: 'ws://localhost:8000/ws',
+      wsUrl: _proto + '//' + _host + '/ws',
       accentColor: '#f60e5f',
       secondaryColor: '#c40a4c',
       lang: 'es',
     };
   </script>
-  <script src="sfl-chat-widget.js"></script>
+  <script src="/static/sfl-chat-widget.js"></script>
 
   <!-- ── Scenario helpers ── -->
   <script>
