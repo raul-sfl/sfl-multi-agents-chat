@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stayforlong – Demo Chat Widget</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f4f6f9;
+      color: #1a1a2e;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #c40a4c 0%, #f60e5f 100%);
+      color: #fff;
+      padding: 64px 24px 80px;
+      text-align: center;
+    }
+    .hero-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .hero-logo svg { width: 40px; height: 40px; }
+    .hero-logo span {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 6px; }
+    .hero-subtitle { font-size: 1rem; font-weight: 400; opacity: 0.75; margin-bottom: 10px; letter-spacing: 0.02em; }
+    .hero p { font-size: 1.05rem; opacity: 0.85; max-width: 540px; margin: 0 auto; }
+
+    /* ── Content ── */
+    .container { max-width: 860px; margin: -32px auto 64px; padding: 0 20px; }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+    .card h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: #c40a4c; }
+    .card p  { font-size: 0.9rem; color: #555; margin-bottom: 16px; line-height: 1.5; }
+
+    /* ── Info banner ── */
+    .info-banner {
+      background: #e8f4f8;
+      border-left: 4px solid #f60e5f;
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: #444;
+      margin-bottom: 24px;
+    }
+    .info-banner strong { color: #c40a4c; }
+
+    /* ── Scenario buttons ── */
+    .scenarios { display: flex; flex-wrap: wrap; gap: 10px; }
+    .scenario-btn {
+      padding: 10px 18px;
+      border: 2px solid #f60e5f;
+      background: #fff;
+      color: #f60e5f;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.15s, color 0.15s;
+      font-family: inherit;
+    }
+    .scenario-btn:hover { background: #f60e5f; color: #fff; }
+    .scenario-btn .icon { margin-right: 6px; }
+
+    /* ── Mock data table ── */
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      background: #f0f4f8;
+      color: #c40a4c;
+      font-weight: 600;
+    }
+    td { padding: 8px 12px; border-bottom: 1px solid #eee; }
+    tr:last-child td { border-bottom: none; }
+    code {
+      background: #eef2f7;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      font-family: "SF Mono", "Fira Code", monospace;
+      color: #c40a4c;
+    }
+
+    /* ── GTM snippet ── */
+    pre {
+      background: #1a1a2e;
+      color: #a8d8ea;
+      padding: 18px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+    pre .comment { color: #6a9fb5; }
+    pre .key     { color: #f7c59f; }
+    pre .val     { color: #a8d8ea; }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #999;
+      padding: 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="hero-logo">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M33.7972 11.3189C35.1301 8.45251 35.8544 5.62233 35.8544 4H30.0904C30.0904 4.66107 29.8691 5.63393 29.487 6.73012C23.9798 3.35441 19.695 4.71463 17.4289 7.2937C14.7363 10.3582 14.722 15.2039 17.3989 17.8753C19.4651 19.9411 21.5216 20.5409 23.2183 20.5409C24.2034 20.536 25.1781 20.3413 26.0878 19.9676C27.2209 19.5073 28.2704 18.7901 29.2291 17.9056C29.2748 18.4757 29.2944 19.0586 29.2944 19.6487C29.2944 24.9676 26.018 29.6073 20 29.6073C14.05 29.6073 10.7076 24.9676 10.7076 19.6487C10.7076 16.4389 11.9589 13.466 14.2831 11.632L10.8591 6.51257C6.48359 9.3079 4.00195 14.1574 4.00195 19.6487C4.00195 28.1845 10.0676 35.3593 20.002 35.3593C29.9363 35.3593 36.002 28.1845 36.002 19.6487C35.9974 16.5938 35.2307 13.7359 33.7972 11.3189ZM23.7851 16.1523C23.0657 16.1523 22.3624 15.9414 21.7642 15.5463C21.166 15.1511 20.6998 14.5895 20.4245 13.9325C20.1492 13.2754 20.0771 12.5524 20.2175 11.8549C20.3578 11.1574 20.7043 10.5167 21.213 10.0138C21.7217 9.51089 22.3699 9.16842 23.0755 9.02967C23.7811 8.89092 24.5125 8.96213 25.1772 9.2343C25.8419 9.50646 26.41 9.96735 26.8097 10.5587C27.2094 11.15 27.4227 11.8452 27.4227 12.5564C27.4227 13.5101 27.0395 14.4247 26.3573 15.0991C25.6751 15.7734 24.7499 16.1523 23.7851 16.1523Z" fill="white"/><path opacity="0.25" d="M29.1752 17.9482C30.5159 16.4266 33.3698 12.4609 33.7982 11.3143C34.6662 12.805 36.0134 15.5274 35.9984 19.8327C35.9938 21.1051 28.8911 22.9656 29.0799 21.9469C29.394 20.2536 29.2849 18.5473 29.1752 17.9482Z" fill="url(#paint0_linear)" style="mix-blend-mode: multiply;"/><defs><linearGradient id="paint0_linear" x1="29.6617" y1="14.0832" x2="34.426" y2="21.2019" gradientUnits="userSpaceOnUse"><stop stop-color="#212120"/><stop offset="0.2" stop-color="#212120" stop-opacity="0.72"/><stop offset="0.51" stop-color="#212120" stop-opacity="0"/></linearGradient></defs></svg>
+      <span>stayforlong</span>
+    </div>
+    <h1>Chat Widget PoC</h1>
+    <p class="hero-subtitle">to use in GTM</p>
+    <p>Demo del asistente AI multi-agente desplegable via Google Tag Manager</p>
+  </div>
+
+  <div class="container">
+
+    <div class="info-banner">
+      <strong>Modo demo:</strong> Esta página simula stayforlong.com con el widget cargado via GTM.
+      El chat conecta a <code>ws://localhost:8000/ws</code>. Asegúrate de que el backend esté corriendo:
+      <code>cd backend &amp;&amp; uvicorn main:app --port 8000 --reload</code>
+    </div>
+
+    <!-- Scenario buttons -->
+    <div class="card">
+      <h2>Escenarios de prueba</h2>
+      <p>Haz clic para abrir el chat con un mensaje de prueba pre-rellenado.</p>
+      <div class="scenarios">
+        <button class="scenario-btn" onclick="triggerScenario('booking')">
+          <span class="icon">🔍</span> Consulta reserva SFL-2024-001
+        </button>
+        <button class="scenario-btn" onclick="triggerScenario('booking_email')">
+          <span class="icon">📧</span> Buscar por email
+        </button>
+        <button class="scenario-btn" onclick="triggerScenario('incident')">
+          <span class="icon">🔧</span> Reportar incidencia
+        </button>
+        <button class="scenario-btn" onclick="triggerScenario('escalate')">
+          <span class="icon">🚨</span> Escalar a agente humano
+        </button>
+        <button class="scenario-btn" onclick="triggerScenario('property_bcn')">
+          <span class="icon">🏨</span> Amenities Barcelona
+        </button>
+        <button class="scenario-btn" onclick="triggerScenario('checkin')">
+          <span class="icon">🕐</span> Horario check-in Madrid
+        </button>
+      </div>
+    </div>
+
+    <!-- Mock data reference -->
+    <div class="card">
+      <h2>Datos de prueba disponibles</h2>
+      <p>Estos son los datos mock que el sistema reconoce:</p>
+      <table>
+        <tr>
+          <th>Tipo</th>
+          <th>ID / Email</th>
+          <th>Descripción</th>
+          <th>Estado</th>
+        </tr>
+        <tr>
+          <td>Reserva</td>
+          <td><code>SFL-2024-001</code></td>
+          <td>Carlos Martinez – Gran Via Barcelona (28 noches)</td>
+          <td>confirmed</td>
+        </tr>
+        <tr>
+          <td>Reserva</td>
+          <td><code>SFL-2024-002</code></td>
+          <td>Sophie Dubois – Salamanca Madrid (28 noches)</td>
+          <td>checked_in</td>
+        </tr>
+        <tr>
+          <td>Reserva</td>
+          <td><code>SFL-2024-003</code></td>
+          <td>James Wilson – LX Factory Lisboa (29 noches)</td>
+          <td>pending</td>
+        </tr>
+        <tr>
+          <td>Email</td>
+          <td><code>carlos.m@email.com</code></td>
+          <td>→ SFL-2024-001</td>
+          <td>–</td>
+        </tr>
+        <tr>
+          <td>Ticket</td>
+          <td><code>INC-001</code></td>
+          <td>Agua caliente – MAD Salamanca</td>
+          <td>in_progress</td>
+        </tr>
+        <tr>
+          <td>Ticket</td>
+          <td><code>INC-002</code></td>
+          <td>Ruidos vecinos – BCN Gran Via</td>
+          <td>resolved</td>
+        </tr>
+        <tr>
+          <td>Propiedad</td>
+          <td><code>PROP-BCN-001</code></td>
+          <td>Apartamentos Gran Via Barcelona</td>
+          <td>4★</td>
+        </tr>
+        <tr>
+          <td>Propiedad</td>
+          <td><code>PROP-MAD-003</code></td>
+          <td>Residencia Salamanca Madrid</td>
+          <td>4★</td>
+        </tr>
+        <tr>
+          <td>Propiedad</td>
+          <td><code>PROP-LIS-002</code></td>
+          <td>LX Factory Residences Lisboa</td>
+          <td>3★</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- GTM snippet -->
+    <div class="card">
+      <h2>Código de inyección GTM</h2>
+      <p>Añade esto como <strong>Custom HTML tag</strong> en Google Tag Manager (trigger: All Pages):</p>
+      <pre><span class="comment">&lt;!-- Stayforlong Chat Widget --&gt;</span>
+&lt;script&gt;
+  <span class="key">window.StayforlongChat</span> = {
+    <span class="key">wsUrl</span>:        <span class="val">'wss://chat.stayforlong.com/ws'</span>,
+    <span class="key">accentColor</span>:  <span class="val">'#f60e5f'</span>,
+    <span class="key">lang</span>:         <span class="val">'es'</span>,
+  };
+&lt;/script&gt;
+&lt;script src=<span class="val">"https://cdn.stayforlong.com/chat/sfl-chat-widget.js"</span>&gt;&lt;/script&gt;</pre>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Stayforlong Chat Widget PoC — Multi-agent AI (Gemini) via GTM
+  </div>
+
+  <!-- ── Widget configuration (simulating GTM injection) ── -->
+  <script>
+    window.StayforlongChat = {
+      wsUrl: 'ws://localhost:8000/ws',
+      accentColor: '#f60e5f',
+      secondaryColor: '#c40a4c',
+      lang: 'es',
+    };
+  </script>
+  <script src="sfl-chat-widget.js"></script>
+
+  <!-- ── Scenario helpers ── -->
+  <script>
+    var SCENARIOS = {
+      booking:       'Hola, necesito revisar mi reserva SFL-2024-001',
+      booking_email: 'Busca mis reservas con el email carlos.m@email.com',
+      incident:      'Hay un problema con el agua caliente en mi habitación, tengo la reserva SFL-2024-002',
+      escalate:      'Llevo 3 horas esperando que arreglen la avería y nadie ha venido, necesito hablar con alguien',
+      property_bcn:  '¿Qué amenities tiene el apartamento de Gran Via en Barcelona?',
+      checkin:       '¿A qué hora es el check-in en la Residencia Salamanca de Madrid?',
+    };
+
+    function triggerScenario(key) {
+      var host = document.getElementById('sfl-chat-host');
+      if (!host || !host.shadowRoot) {
+        alert('El widget aún no se ha cargado. Espera un momento e inténtalo de nuevo.');
+        return;
+      }
+      var shadow = host.shadowRoot;
+      var window_el = shadow.getElementById('sfl-window');
+      var btn = shadow.getElementById('sfl-btn');
+      var input = shadow.getElementById('sfl-input');
+
+      // Open chat if not open
+      if (!window_el.classList.contains('open')) {
+        btn.click();
+        // Wait a tick for connection, then fill input
+        setTimeout(function() { fillAndFocus(shadow, input, key); }, 300);
+      } else {
+        fillAndFocus(shadow, input, key);
+      }
+    }
+
+    function fillAndFocus(shadow, input, key) {
+      input.value = SCENARIOS[key] || '';
+      // Trigger resize
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+      input.focus();
+    }
+  </script>
+
+</body>
+</html>
