@@ -129,7 +129,6 @@
       <span>stayforlong</span>
     </div>
     <h1>Chat Widget PoC</h1>
-    <p class="hero-subtitle">to use in GTM</p>
     <p>Demo del asistente AI multi-agente desplegable via Google Tag Manager</p>
   </div>
 
@@ -237,17 +236,12 @@
 
     <!-- GTM snippet -->
     <div class="card">
-      <h2>Código de inyección GTM</h2>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <h2 style="margin:0;">Código de inyección GTM</h2>
+        <button id="gtm-copy-btn" style="background:#f60e5f;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:13px;cursor:pointer;font-weight:600;">Copiar</button>
+      </div>
       <p>Añade esto como <strong>Custom HTML tag</strong> en Google Tag Manager (trigger: All Pages):</p>
-      <pre><span class="comment">&lt;!-- Stayforlong Chat Widget --&gt;</span>
-&lt;script&gt;
-  <span class="key">window.StayforlongChat</span> = {
-    <span class="key">wsUrl</span>:        <span class="val">'wss://chat.stayforlong.com/ws'</span>,
-    <span class="key">accentColor</span>:  <span class="val">'#f60e5f'</span>,
-    <span class="key">lang</span>:         <span class="val">'es'</span>,
-  };
-&lt;/script&gt;
-&lt;script src=<span class="val">"https://cdn.stayforlong.com/chat/sfl-chat-widget.js"</span>&gt;&lt;/script&gt;</pre>
+      <pre id="gtm-snippet-code" style="white-space:pre-wrap;word-break:break-all;"></pre>
     </div>
 
   </div>
@@ -308,6 +302,41 @@
       input.style.height = Math.min(input.scrollHeight, 120) + 'px';
       input.focus();
     }
+  </script>
+
+  <!-- GTM snippet dinámico: URLs basadas en el host actual -->
+  <script>
+    (function () {
+      var wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      var httpProto = location.protocol;
+      var host = location.host || 'localhost:8000';
+      var wsUrl  = wsProto  + '//' + host + '/ws';
+      var jsUrl  = httpProto + '//' + host + '/static/sfl-chat-widget.js';
+
+      var snippet =
+        '<!-- Stayforlong Chat Widget -->\n' +
+        '<script>\n' +
+        '  window.StayforlongChat = {\n' +
+        '    wsUrl:       \'' + wsUrl + '\',\n' +
+        '    accentColor: \'#f60e5f\',\n' +
+        '    lang:        \'es\',\n' +
+        '  };\n' +
+        '<\/script>\n' +
+        '<script src="' + jsUrl + '"><\/script>';
+
+      var pre = document.getElementById('gtm-snippet-code');
+      if (pre) pre.textContent = snippet;
+
+      var btn = document.getElementById('gtm-copy-btn');
+      if (btn) {
+        btn.addEventListener('click', function () {
+          navigator.clipboard.writeText(snippet).then(function () {
+            btn.textContent = '¡Copiado!';
+            setTimeout(function () { btn.textContent = 'Copiar'; }, 2000);
+          });
+        });
+      }
+    })();
   </script>
 
 </body>
