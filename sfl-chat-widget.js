@@ -7,7 +7,7 @@
  *     window.StayforlongChat = {
  *       wsUrl: 'wss://your-backend.com/ws',
  *       accentColor: '#f60e5f',
- *       lang: 'es',
+ *       lang: 'en',  // optional — defaults to browser language
  *     };
  *   </script>
  *   <script src="https://your-cdn.com/sfl-chat-widget.js"></script>
@@ -19,7 +19,7 @@
     wsUrl: 'ws://localhost:8000/ws',
     accentColor: '#f60e5f',
     secondaryColor: '#c40a4c',
-    lang: 'es',
+    lang: 'en',
     position: 'bottom-right',
     welcomeMessage: null,
   }, cfg || {});
@@ -258,18 +258,18 @@
 
   var TEMPLATE = '\
     <style>' + CSS + '</style>\
-    <button id="sfl-btn" aria-label="Abrir chat de soporte">\
+    <button id="sfl-btn" aria-label="Open support chat">\
       ' + CHAT_ICON + '\
       <div id="sfl-badge"></div>\
     </button>\
-    <div id="sfl-window" role="dialog" aria-label="Chat Stayforlong">\
+    <div id="sfl-window" role="dialog" aria-label="Stayforlong Chat">\
       <div id="sfl-header">\
         <div id="sfl-avatar">' + CHAT_ICON + '</div>\
         <div id="sfl-header-info">\
           <div id="sfl-header-title">Stayforlong</div>\
-          <div id="sfl-agent-name">Conectando...</div>\
+          <div id="sfl-agent-name">Connecting...</div>\
         </div>\
-        <button id="sfl-close" aria-label="Cerrar chat">' + CLOSE_ICON + '</button>\
+        <button id="sfl-close" aria-label="Close chat">' + CLOSE_ICON + '</button>\
       </div>\
       <div id="sfl-messages" aria-live="polite">\
         <div id="sfl-typing" aria-hidden="true">\
@@ -278,8 +278,8 @@
       </div>\
       <div id="sfl-status"></div>\
       <div id="sfl-input-row">\
-        <textarea id="sfl-input" rows="1" placeholder="Write / Escribe tu mensaje..." aria-label="Mensaje"></textarea>\
-        <button id="sfl-send" aria-label="Enviar">' + SEND_ICON + '</button>\
+        <textarea id="sfl-input" rows="1" placeholder="Write your message..." aria-label="Message"></textarea>\
+        <button id="sfl-send" aria-label="Send">' + SEND_ICON + '</button>\
       </div>\
     </div>\
   ';
@@ -338,7 +338,7 @@
   }
 
   function setAgentLabel(name) {
-    $('sfl-agent-name').textContent = name || 'Asistente';
+    $('sfl-agent-name').textContent = name || 'Assistant';
   }
 
   function setStatus(msg) {
@@ -381,15 +381,15 @@
       setSendEnabled(false);
       if (state.isOpen && state.reconnectAttempts < state.MAX_RECONNECT) {
         state.reconnectAttempts++;
-        setStatus('Reconectando (' + state.reconnectAttempts + '/' + state.MAX_RECONNECT + ')...');
+        setStatus('Reconnecting (' + state.reconnectAttempts + '/' + state.MAX_RECONNECT + ')...');
         setTimeout(connect, state.RECONNECT_DELAY);
       } else if (state.reconnectAttempts >= state.MAX_RECONNECT) {
-        setStatus('Sin conexión. Recarga la página.');
+        setStatus('No connection. Reload the page.');
       }
     };
 
     ws.onerror = function () {
-      setStatus('Error de conexión.');
+      setStatus('Connection error.');
     };
   }
 
@@ -398,7 +398,7 @@
     var text = input.value.trim();
     if (!text) return;
     if (!state.isConnected || !state.socket || state.socket.readyState !== 1) {
-      setStatus('Sin conexión al servidor.');
+      setStatus('No connection to server.');
       return;
     }
 
@@ -426,7 +426,7 @@
         hideTyping();
         setSendEnabled(true);
         appendMessage('agent', data.content, data.agent);
-        setAgentLabel(data.agent || 'Asistente');
+        setAgentLabel(data.agent || 'Assistant');
         // Show unread badge if chat is closed
         if (!state.isOpen) {
           $('sfl-badge').style.display = 'block';
@@ -436,7 +436,7 @@
       case 'error':
         hideTyping();
         setSendEnabled(true);
-        appendMessage('agent', data.content || 'Ha ocurrido un error.', null);
+        appendMessage('agent', data.content || 'An error occurred.', null);
         break;
     }
   }

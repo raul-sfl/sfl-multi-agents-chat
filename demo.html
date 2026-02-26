@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -129,70 +129,70 @@
       <span>stayforlong</span>
     </div>
     <h1>Chat Widget PoC</h1>
-    <p>Demo del asistente AI multi-agente desplegable via Google Tag Manager</p>
+    <p>Demo of the multi-agent AI assistant deployable via Google Tag Manager</p>
   </div>
 
   <div class="container">
 
     <div class="info-banner">
-      <strong>Modo demo:</strong> Esta página simula stayforlong.com con el widget cargado via GTM.
-      El chat conecta a <code>ws://localhost:8000/ws</code>. Asegúrate de que el backend esté corriendo:
+      <strong>Demo mode:</strong> This page simulates stayforlong.com with the widget loaded via GTM.
+      The chat connects to <code>ws://localhost:8000/ws</code>. Make sure the backend is running:
       <code>cd backend &amp;&amp; uvicorn main:app --port 8000 --reload</code>
     </div>
 
     <!-- Scenario buttons -->
     <div class="card">
-      <h2>Escenarios de prueba</h2>
-      <p>Haz clic para abrir el chat con un mensaje de prueba pre-rellenado.</p>
+      <h2>Test scenarios</h2>
+      <p>Click to open the chat with a pre-filled test message.</p>
       <div class="scenarios">
         <button class="scenario-btn" onclick="triggerScenario('booking')">
-          <span class="icon">🔍</span> Consulta reserva SFL-2024-001
+          <span class="icon">🔍</span> Check booking SFL-2024-001
         </button>
         <button class="scenario-btn" onclick="triggerScenario('booking_email')">
-          <span class="icon">📧</span> Buscar por email
+          <span class="icon">📧</span> Search by email
         </button>
         <button class="scenario-btn" onclick="triggerScenario('incident')">
-          <span class="icon">🔧</span> Reportar incidencia
+          <span class="icon">🔧</span> Report an incident
         </button>
         <button class="scenario-btn" onclick="triggerScenario('escalate')">
-          <span class="icon">🚨</span> Escalar a agente humano
+          <span class="icon">🚨</span> Escalate to human agent
         </button>
         <button class="scenario-btn" onclick="triggerScenario('property_bcn')">
-          <span class="icon">🏨</span> Amenities Barcelona
+          <span class="icon">🏨</span> Barcelona amenities
         </button>
         <button class="scenario-btn" onclick="triggerScenario('checkin')">
-          <span class="icon">🕐</span> Horario check-in Madrid
+          <span class="icon">🕐</span> Check-in time Madrid
         </button>
       </div>
     </div>
 
     <!-- Mock data reference -->
     <div class="card">
-      <h2>Datos de prueba disponibles</h2>
-      <p>Estos son los datos mock que el sistema reconoce:</p>
+      <h2>Available test data</h2>
+      <p>These are the mock data entries the system recognises:</p>
       <table>
         <tr>
-          <th>Tipo</th>
+          <th>Type</th>
           <th>ID / Email</th>
-          <th>Descripción</th>
-          <th>Estado</th>
+          <th>Description</th>
+          <th>Status</th>
         </tr>
         <tr>
-          <td>Reserva</td>
+          <td>Booking</td>
           <td><code>SFL-2024-001</code></td>
-          <td>Carlos Martinez – Gran Via Barcelona (28 noches)</td>
+          <td>Carlos Martinez – Gran Via Barcelona (28 nights)</td>
           <td>confirmed</td>
         </tr>
         <tr>
-          <td>Reserva</td>
+          <td>Booking</td>
           <td><code>SFL-2024-002</code></td>
-          <td>Sophie Dubois – Salamanca Madrid (28 noches)</td>
+          <td>Sophie Dubois – Salamanca Madrid (28 nights)</td>
           <td>checked_in</td>
         </tr>
         <tr>
-          <td>Reserva</td>
+          <td>Booking</td>
           <td><code>SFL-2024-003</code></td>
-          <td>James Wilson – LX Factory Lisboa (29 noches)</td>
+          <td>James Wilson – LX Factory Lisbon (29 nights)</td>
           <td>pending</td>
         </tr>
         <tr>
@@ -204,31 +204,31 @@
         <tr>
           <td>Ticket</td>
           <td><code>INC-001</code></td>
-          <td>Agua caliente – MAD Salamanca</td>
+          <td>Hot water – MAD Salamanca</td>
           <td>in_progress</td>
         </tr>
         <tr>
           <td>Ticket</td>
           <td><code>INC-002</code></td>
-          <td>Ruidos vecinos – BCN Gran Via</td>
+          <td>Neighbor noise – BCN Gran Via</td>
           <td>resolved</td>
         </tr>
         <tr>
-          <td>Propiedad</td>
+          <td>Property</td>
           <td><code>PROP-BCN-001</code></td>
           <td>Apartamentos Gran Via Barcelona</td>
           <td>4★</td>
         </tr>
         <tr>
-          <td>Propiedad</td>
+          <td>Property</td>
           <td><code>PROP-MAD-003</code></td>
           <td>Residencia Salamanca Madrid</td>
           <td>4★</td>
         </tr>
         <tr>
-          <td>Propiedad</td>
+          <td>Property</td>
           <td><code>PROP-LIS-002</code></td>
-          <td>LX Factory Residences Lisboa</td>
+          <td>LX Factory Residences Lisbon</td>
           <td>3★</td>
         </tr>
       </table>
@@ -237,10 +237,10 @@
     <!-- GTM snippet -->
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <h2 style="margin:0;">Código de inyección GTM</h2>
-        <button id="gtm-copy-btn" style="background:#f60e5f;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:13px;cursor:pointer;font-weight:600;">Copiar</button>
+        <h2 style="margin:0;">GTM injection code</h2>
+        <button id="gtm-copy-btn" style="background:#f60e5f;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:13px;cursor:pointer;font-weight:600;">Copy</button>
       </div>
-      <p>Añade esto como <strong>Custom HTML tag</strong> en Google Tag Manager (trigger: All Pages):</p>
+      <p>Add this as a <strong>Custom HTML tag</strong> in Google Tag Manager (trigger: All Pages):</p>
       <pre id="gtm-snippet-code" style="white-space:pre-wrap;word-break:break-all;"></pre>
     </div>
 
@@ -258,7 +258,6 @@
       wsUrl: _proto + '//' + _host + '/ws',
       accentColor: '#f60e5f',
       secondaryColor: '#c40a4c',
-      lang: 'es',
     };
   </script>
   <script src="/static/sfl-chat-widget.js"></script>
@@ -266,18 +265,18 @@
   <!-- ── Scenario helpers ── -->
   <script>
     var SCENARIOS = {
-      booking:       'Hola, necesito revisar mi reserva SFL-2024-001',
-      booking_email: 'Busca mis reservas con el email carlos.m@email.com',
-      incident:      'Hay un problema con el agua caliente en mi habitación, tengo la reserva SFL-2024-002',
-      escalate:      'Llevo 3 horas esperando que arreglen la avería y nadie ha venido, necesito hablar con alguien',
-      property_bcn:  '¿Qué amenities tiene el apartamento de Gran Via en Barcelona?',
-      checkin:       '¿A qué hora es el check-in en la Residencia Salamanca de Madrid?',
+      booking:       'Hi, I need to check my booking SFL-2024-001',
+      booking_email: 'Find my bookings with the email carlos.m@email.com',
+      incident:      'There is a problem with the hot water in my room, my booking is SFL-2024-002',
+      escalate:      "I've been waiting 3 hours for the repair and nobody has shown up, I need to speak to someone",
+      property_bcn:  'What amenities does the Gran Via apartment in Barcelona have?',
+      checkin:       'What time is check-in at Residencia Salamanca in Madrid?',
     };
 
     function triggerScenario(key) {
       var host = document.getElementById('sfl-chat-host');
       if (!host || !host.shadowRoot) {
-        alert('El widget aún no se ha cargado. Espera un momento e inténtalo de nuevo.');
+        alert('The widget has not loaded yet. Please wait a moment and try again.');
         return;
       }
       var shadow = host.shadowRoot;
@@ -304,7 +303,7 @@
     }
   </script>
 
-  <!-- GTM snippet dinámico: URLs basadas en el host actual -->
+  <!-- Dynamic GTM snippet: URLs based on current host -->
   <script>
     (function () {
       var wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -319,7 +318,6 @@
         '  window.StayforlongChat = {\n' +
         '    wsUrl:       \'' + wsUrl + '\',\n' +
         '    accentColor: \'#f60e5f\',\n' +
-        '    lang:        \'es\',\n' +
         '  };\n' +
         '<\/script>\n' +
         '<script src="' + jsUrl + '"><\/script>';
@@ -331,8 +329,8 @@
       if (btn) {
         btn.addEventListener('click', function () {
           navigator.clipboard.writeText(snippet).then(function () {
-            btn.textContent = '¡Copiado!';
-            setTimeout(function () { btn.textContent = 'Copiar'; }, 2000);
+            btn.textContent = 'Copied!';
+            setTimeout(function () { btn.textContent = 'Copy'; }, 2000);
           });
         });
       }
