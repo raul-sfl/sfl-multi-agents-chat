@@ -7,7 +7,7 @@
  *     window.StayforlongChat = {
  *       wsUrl: 'wss://your-backend.com/ws',
  *       accentColor: '#f60e5f',
- *       lang: 'en',  // optional — defaults to browser language
+ *       lang: 'es',  // optional — omit to auto-detect from navigator.language
  *     };
  *   </script>
  *   <script src="https://your-cdn.com/sfl-chat-widget.js"></script>
@@ -19,7 +19,7 @@
     wsUrl: 'ws://localhost:8000/ws',
     accentColor: '#f60e5f',
     secondaryColor: '#c40a4c',
-    lang: 'en',
+    lang: null,   // null = auto-detect from navigator.language; set 'es'/'en' to force
     position: 'bottom-right',
     welcomeMessage: null,
   }, cfg || {});
