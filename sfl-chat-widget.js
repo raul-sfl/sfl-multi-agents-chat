@@ -248,6 +248,21 @@
     display: none;\n\
   }\n\
   #sfl-status.visible { display: block; }\n\
+\n\
+  /* ── History separator ── */\n\
+  .sfl-separator {\n\
+    display: flex;\n\
+    align-items: center;\n\
+    gap: 8px;\n\
+    margin: 4px 0;\n\
+    color: #9aa3ad;\n\
+    font-size: 11px;\n\
+  }\n\
+  .sfl-separator::before, .sfl-separator::after {\n\
+    content: "";\n\
+    flex: 1;\n\
+    border-top: 1px solid #e0e6ec;\n\
+  }\n\
   ';
 
   // ─── HTML TEMPLATE ─────────────────────────────────────────────────────────
@@ -289,6 +304,7 @@
   var state = {
     socket: null,
     sessionId: null,
+    userId: null,
     isOpen: false,
     isConnected: false,
     reconnectAttempts: 0,
@@ -297,9 +313,33 @@
     shadow: null,
   };
 
+  // ─── USER IDENTITY ──────────────────────────────────────────────────────────
+
+  function getUserId() {
+    try {
+      var stored = localStorage.getItem('sfl_chat_user_id');
+      if (stored) return stored;
+      var id = 'sfl_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('sfl_chat_user_id', id);
+      return id;
+    } catch (e) {
+      // localStorage may be blocked (private browsing / cross-origin)
+      return 'anon_' + Math.random().toString(36).substr(2, 12);
+    }
+  }
+
   // ─── DOM HELPERS ────────────────────────────────────────────────────────────
 
   function $(id) { return state.shadow.getElementById(id); }
+
+  function appendSeparator(label) {
+    var messages = $('sfl-messages');
+    var typing = $('sfl-typing');
+    var sep = document.createElement('div');
+    sep.className = 'sfl-separator';
+    sep.textContent = label;
+    messages.insertBefore(sep, typing);
+  }
 
   function appendMessage(role, content, agentName) {
     var messages = $('sfl-messages');
@@ -359,7 +399,8 @@
     setAgentLabel("Connecting...");
 
     var detectedLang = (config.lang || navigator.language || 'en').split('-')[0].toLowerCase();
-    var wsUrl = config.wsUrl + '?lang=' + detectedLang;
+    state.userId = state.userId || getUserId();
+    var wsUrl = config.wsUrl + '?lang=' + detectedLang + '&user_id=' + encodeURIComponent(state.userId);
     var ws = new WebSocket(wsUrl);
     state.socket = ws;
 
@@ -416,6 +457,16 @@
     switch (data.type) {
       case 'session_init':
         state.sessionId = data.session_id;
+        if (data.user_id) state.userId = data.user_id;
+        // Render previous conversation history before the welcome message
+        if (data.history && data.history.length > 0) {
+          appendSeparator('Previous conversation');
+          for (var i = 0; i < data.history.length; i++) {
+            var m = data.history[i];
+            appendMessage(m.role === 'user' ? 'user' : 'agent', m.content, m.agent || null);
+          }
+          appendSeparator('New session');
+        }
         break;
 
       case 'typing':
