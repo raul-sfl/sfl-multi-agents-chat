@@ -21,7 +21,7 @@
   'use strict';
 
   var config = Object.assign({
-    wsUrl: 'ws://localhost:8000/ws',
+    wsUrl: 'wss://sfl-multi-agents-ws.up.railway.app/ws',
     accentColor: '#f60e5f',
     secondaryColor: '#c40a4c',
     lang: null,         // null = auto-detect from navigator.language; set 'es'/'en' to force

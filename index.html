@@ -255,7 +255,7 @@
     // Set SFL_BACKEND_URL to point to your sfl-multi-agents-adk instance.
     // In production this should be your deployed backend URL (https/wss).
     // Locally: defaults to localhost:8000 (sfl-multi-agents-adk default port).
-    var _backendHost = window.SFL_BACKEND_URL || (window.location.protocol === 'https:' ? 'https://localhost:8000' : 'http://localhost:8000');
+    var _backendHost = window.SFL_BACKEND_URL || 'https://sfl-multi-agents-ws.up.railway.app';
     var _wsBase = _backendHost.replace(/^http/, 'ws').replace(/\/$/, '');
     window.StayforlongChat = {
       wsUrl: _wsBase + '/ws',
