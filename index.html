@@ -314,11 +314,8 @@
   <!-- Dynamic GTM snippet: URLs based on current host -->
   <script>
     (function () {
-      var wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-      var httpProto = location.protocol;
-      var host = location.host || 'localhost:8000';
-      var wsUrl  = wsProto  + '//' + host + '/ws';
-      var jsUrl  = httpProto + '//' + host + '/static/sfl-chat-widget.js';
+      var wsUrl  = 'wss://sfl-multi-agents-ws.up.railway.app/ws';
+      var jsUrl  = 'https://sfl-multi-agents-chat.up.railway.app/sfl-chat-widget.js';
 
       var snippet =
         '<!-- Stayforlong Chat Widget -->\n' +
