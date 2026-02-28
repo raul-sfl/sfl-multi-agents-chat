@@ -1,0 +1,12 @@
+{
+  "name": "sfl-multi-agents-chat",
+  "version": "1.0.0",
+  "description": "GTM-injectable Stayforlong chat widget",
+  "scripts": {
+    "build": "esbuild sfl-chat-widget.js --bundle --minify --outfile=dist/sfl-chat-widget.min.js",
+    "watch": "esbuild sfl-chat-widget.js --bundle --watch --outfile=dist/sfl-chat-widget.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0"
+  }
+}

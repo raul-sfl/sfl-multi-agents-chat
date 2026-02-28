@@ -252,15 +252,22 @@
 
   <!-- ── Widget configuration (simulating GTM injection) ── -->
   <script>
-    var _proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    var _host  = window.location.host || 'localhost:8000';
+    // Set SFL_BACKEND_URL to point to your sfl-multi-agents-adk instance.
+    // Defaults to same host (useful when running both locally).
+    var _backendHost = window.SFL_BACKEND_URL || (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + (window.location.host || 'localhost:8000');
+    var _wsBase = _backendHost.replace(/^http/, 'ws').replace(/\/$/, '');
     window.StayforlongChat = {
-      wsUrl: _proto + '//' + _host + '/ws',
+      wsUrl: _wsBase + '/ws',
       accentColor: '#f60e5f',
       secondaryColor: '#c40a4c',
+      // contextVars: GTM variable values forwarded as extra WS query params
+      contextVars: {
+        // user_id:    '{{User ID}}',       // uncomment and set in GTM
+        // booking_id: '{{Booking ID}}',
+      },
     };
   </script>
-  <script src="/static/sfl-chat-widget.js"></script>
+  <script src="./sfl-chat-widget.js"></script>
 
   <!-- ── Scenario helpers ── -->
   <script>

@@ -7,7 +7,12 @@
  *     window.StayforlongChat = {
  *       wsUrl: 'wss://your-backend.com/ws',
  *       accentColor: '#f60e5f',
- *       lang: 'es',  // optional — omit to auto-detect from navigator.language
+ *       lang: 'es',        // optional — omit to auto-detect from navigator.language
+ *       contextVars: {     // optional — GTM dataLayer / window variables to forward as WS params
+ *         user_id:    '{{User ID}}',          // GTM variable or literal value
+ *         booking_id: '{{Booking ID}}',
+ *         // any key here becomes a query param on the WebSocket URL
+ *       },
  *     };
  *   </script>
  *   <script src="https://your-cdn.com/sfl-chat-widget.js"></script>
@@ -19,9 +24,10 @@
     wsUrl: 'ws://localhost:8000/ws',
     accentColor: '#f60e5f',
     secondaryColor: '#c40a4c',
-    lang: null,   // null = auto-detect from navigator.language; set 'es'/'en' to force
+    lang: null,         // null = auto-detect from navigator.language; set 'es'/'en' to force
     position: 'bottom-right',
     welcomeMessage: null,
+    contextVars: {},    // key→value map of extra WS query params (GTM variables resolved before widget loads)
   }, cfg || {});
 
   // ─── STYLES ────────────────────────────────────────────────────────────────
@@ -400,7 +406,22 @@
 
     var detectedLang = (config.lang || navigator.language || 'en').split('-')[0].toLowerCase();
     state.userId = state.userId || getUserId();
-    var wsUrl = config.wsUrl + '?lang=' + detectedLang + '&user_id=' + encodeURIComponent(state.userId);
+
+    // ── GTM / dataLayer context bridge ────────────────────────────────────────
+    // config.contextVars keys become extra query params on the WS URL.
+    // Values may be GTM variable outputs (strings) resolved before this script runs.
+    var ctxParams = '';
+    var ctxVars = config.contextVars || {};
+    for (var ctxKey in ctxVars) {
+      if (Object.prototype.hasOwnProperty.call(ctxVars, ctxKey)) {
+        var ctxVal = ctxVars[ctxKey];
+        if (ctxVal !== null && ctxVal !== undefined && ctxVal !== '' && ctxVal !== '{{' + ctxKey + '}}') {
+          ctxParams += '&' + encodeURIComponent(ctxKey) + '=' + encodeURIComponent(ctxVal);
+        }
+      }
+    }
+
+    var wsUrl = config.wsUrl + '?lang=' + detectedLang + '&user_id=' + encodeURIComponent(state.userId) + ctxParams;
     var ws = new WebSocket(wsUrl);
     state.socket = ws;
 
