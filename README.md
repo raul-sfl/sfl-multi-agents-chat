@@ -7,7 +7,7 @@ GTM-injectable chat widget for Stayforlong customer support. Zero-dependency, Sh
 ```
 sfl-multi-agents-chat/
 ├── sfl-chat-widget.js   # The widget — load this from GTM or a CDN
-└── demo.html            # Local dev demo page
+└── index.html           # Local dev demo page
 ```
 
 ## GTM injection

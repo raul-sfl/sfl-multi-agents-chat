@@ -253,8 +253,9 @@
   <!-- ── Widget configuration (simulating GTM injection) ── -->
   <script>
     // Set SFL_BACKEND_URL to point to your sfl-multi-agents-adk instance.
-    // Defaults to same host (useful when running both locally).
-    var _backendHost = window.SFL_BACKEND_URL || (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + (window.location.host || 'localhost:8000');
+    // In production this should be your deployed backend URL (https/wss).
+    // Locally: defaults to localhost:8000 (sfl-multi-agents-adk default port).
+    var _backendHost = window.SFL_BACKEND_URL || (window.location.protocol === 'https:' ? 'https://localhost:8000' : 'http://localhost:8000');
     var _wsBase = _backendHost.replace(/^http/, 'ws').replace(/\/$/, '');
     window.StayforlongChat = {
       wsUrl: _wsBase + '/ws',
