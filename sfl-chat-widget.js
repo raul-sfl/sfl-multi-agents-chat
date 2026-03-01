@@ -322,16 +322,28 @@
   // ─── USER IDENTITY ──────────────────────────────────────────────────────────
 
   function getUserId() {
-    try {
-      var stored = localStorage.getItem('sfl_chat_user_id');
-      if (stored) return stored;
-      var id = 'sfl_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 9);
-      localStorage.setItem('sfl_chat_user_id', id);
-      return id;
-    } catch (e) {
-      // localStorage may be blocked (private browsing / cross-origin)
-      return 'anon_' + Math.random().toString(36).substr(2, 12);
+    var STORAGE_KEY = 'sfl_chat_user_id';
+    function _newId() {
+      return 'sfl_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 9);
     }
+    // 1. Try localStorage (persists across tabs and sessions)
+    try {
+      var stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) return stored;
+      var id = _newId();
+      localStorage.setItem(STORAGE_KEY, id);
+      return id;
+    } catch (e) { /* blocked: private browsing or cross-origin */ }
+    // 2. Try sessionStorage (persists across reloads within the same tab)
+    try {
+      var stored = sessionStorage.getItem(STORAGE_KEY);
+      if (stored) return stored;
+      var id = _newId();
+      sessionStorage.setItem(STORAGE_KEY, id);
+      return id;
+    } catch (e) { /* also blocked */ }
+    // 3. Last resort: random per page load (won't persist)
+    return 'anon_' + Math.random().toString(36).substr(2, 12);
   }
 
   // ─── DOM HELPERS ────────────────────────────────────────────────────────────
