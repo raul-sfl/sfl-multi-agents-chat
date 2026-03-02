@@ -32,7 +32,14 @@
     position: 'bottom-right',
     welcomeMessage: null,
     contextVars: {},    // key→value map of extra WS query params (GTM variables resolved before widget loads)
+    enableVoice: true,  // show mic button inside the chat window
+    voiceWsUrl: null,   // null = auto-derive from wsUrl (/ws → /ws/voice)
   }, cfg || {});
+
+  function _voiceWsUrl() {
+    if (config.voiceWsUrl) return config.voiceWsUrl;
+    return config.wsUrl.replace(/\/ws(\?.*)?$/, '/ws/voice');
+  }
 
   // ─── STYLES ────────────────────────────────────────────────────────────────
 
@@ -259,6 +266,85 @@
   }\n\
   #sfl-status.visible { display: block; }\n\
 \n\
+  /* ── Mic button ── */\n\
+  #sfl-mic {\n\
+    width: 40px; height: 40px;\n\
+    border-radius: 50%;\n\
+    background: #e8e8ed;\n\
+    border: 2px solid transparent;\n\
+    cursor: pointer;\n\
+    display: flex;\n\
+    align-items: center;\n\
+    justify-content: center;\n\
+    flex-shrink: 0;\n\
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;\n\
+    user-select: none;\n\
+    -webkit-user-select: none;\n\
+    touch-action: none;\n\
+  }\n\
+  #sfl-mic:hover { background: #d2d2d7; }\n\
+  #sfl-mic svg { width: 18px; height: 18px; fill: #6e6e73; }\n\
+  #sfl-mic.recording {\n\
+    background: #fee2e2;\n\
+    border-color: ' + config.accentColor + ';\n\
+    animation: sfl-mic-pulse 0.9s infinite;\n\
+  }\n\
+  #sfl-mic.recording svg { fill: ' + config.accentColor + '; }\n\
+  @keyframes sfl-mic-pulse {\n\
+    0%, 100% { box-shadow: 0 0 0 0 rgba(246,14,95,0.4); }\n\
+    50%       { box-shadow: 0 0 0 8px rgba(246,14,95,0); }\n\
+  }\n\
+\n\
+  /* ── Voice feedback strip ── */\n\
+  #sfl-voice-feedback {\n\
+    display: none;\n\
+    flex-direction: column;\n\
+    gap: 4px;\n\
+    padding: 7px 14px;\n\
+    border-top: 1px solid #f0e6ec;\n\
+    background: #fdf5f8;\n\
+    flex-shrink: 0;\n\
+  }\n\
+  #sfl-voice-feedback.active { display: flex; }\n\
+\n\
+  /* interim transcript bubble */\n\
+  #sfl-interim-bubble {\n\
+    display: none;\n\
+    flex-direction: column;\n\
+    align-items: flex-end;\n\
+    animation: sfl-fade-in 0.15s ease;\n\
+  }\n\
+  #sfl-interim-bubble.active { display: flex; }\n\
+  #sfl-interim-bubble .sfl-agent-label { font-size: 10px; color: ' + config.accentColor + '; font-weight: 700; margin-bottom: 2px; text-transform: uppercase; }\n\
+  #sfl-interim-bubble .sfl-bubble {\n\
+    background: #fce7f3;\n\
+    color: #9d174d;\n\
+    border-bottom-right-radius: 4px;\n\
+    font-style: italic;\n\
+    opacity: 0.9;\n\
+    max-width: 100%;\n\
+  }\n\
+\n\
+  /* audio playing indicator */\n\
+  #sfl-audio-indicator {\n\
+    display: none;\n\
+    align-items: center;\n\
+    gap: 6px;\n\
+    font-size: 11px;\n\
+    color: #2e7d32;\n\
+    font-weight: 600;\n\
+  }\n\
+  #sfl-audio-indicator.active { display: flex; }\n\
+  #sfl-audio-indicator .sfl-bars { display: flex; gap: 3px; align-items: center; height: 12px; }\n\
+  #sfl-audio-indicator .sfl-bars span {\n\
+    width: 3px; background: #4caf50; border-radius: 2px;\n\
+    animation: sfl-audiobar 0.7s ease-in-out infinite alternate;\n\
+  }\n\
+  #sfl-audio-indicator .sfl-bars span:nth-child(2) { animation-delay: 0.15s; }\n\
+  #sfl-audio-indicator .sfl-bars span:nth-child(3) { animation-delay: 0.3s; }\n\
+  #sfl-audio-indicator .sfl-bars span:nth-child(4) { animation-delay: 0.15s; }\n\
+  @keyframes sfl-audiobar { from { height: 3px; } to { height: 12px; } }\n\
+\n\
   /* ── History separator ── */\n\
   .sfl-separator {\n\
     display: flex;\n\
@@ -280,6 +366,16 @@
   var CHAT_ICON = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/></svg>';
   var CLOSE_ICON = '&#x2715;';
   var SEND_ICON = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>';
+  var MIC_ICON = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm-1 17.93A8 8 0 0 1 4.07 12H6a6 6 0 0 0 12 0h1.93A8 8 0 0 1 13 18.93V21h2v2H9v-2h2v-2.07z"/></svg>';
+
+  var _voiceFeedbackHtml = config.enableVoice ? '\
+      <div id="sfl-voice-feedback">\
+        <div id="sfl-interim-bubble"><div class="sfl-agent-label">🎤 You</div><div class="sfl-bubble" id="sfl-interim-text"></div></div>\
+        <div id="sfl-audio-indicator"><div class="sfl-bars"><span></span><span></span><span></span><span></span></div>&nbsp;🔊 Speaking…</div>\
+      </div>' : '';
+
+  var _micBtnHtml = config.enableVoice ? '\
+        <button id="sfl-mic" aria-label="Hold to speak" title="Hold to speak">' + MIC_ICON + '</button>' : '';
 
   var TEMPLATE = '\
     <style>' + CSS + '</style>\
@@ -301,9 +397,11 @@
           <span></span><span></span><span></span>\
         </div>\
       </div>\
+      ' + _voiceFeedbackHtml + '\
       <div id="sfl-status"></div>\
       <div id="sfl-input-row">\
         <textarea id="sfl-input" rows="1" placeholder="Write your message..." aria-label="Message"></textarea>\
+        ' + _micBtnHtml + '\
         <button id="sfl-send" aria-label="Send">' + SEND_ICON + '</button>\
       </div>\
     </div>\
@@ -322,6 +420,17 @@
     RECONNECT_DELAY: 2500,
     shadow: null,
     _pingInterval: null,
+    // ── voice state ──
+    voiceSocket: null,
+    voiceConnected: false,
+    mediaRecorder: null,
+    audioChunks: [],
+    isRecording: false,
+    audioCtx: null,
+    audioQueue: [],
+    audioNextSeq: 0,
+    audioPlaying: false,
+    liveRecog: null,
   };
 
   // ─── USER IDENTITY ──────────────────────────────────────────────────────────
@@ -412,6 +521,275 @@
 
   function setSendEnabled(enabled) {
     $('sfl-send').disabled = !enabled;
+  }
+
+  // ─── VOICE HELPERS ────────────────────────────────────────────────────────────
+
+  function _getAudioCtx() {
+    if (!state.audioCtx) {
+      state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return state.audioCtx;
+  }
+
+  function _resetAudioQueue() {
+    state.audioQueue = [];
+    state.audioNextSeq = 0;
+    state.audioPlaying = false;
+    var ind = $('sfl-audio-indicator');
+    if (ind) ind.classList.remove('active');
+    _hideVoiceFeedback();
+  }
+
+  function _b64ToArrayBuffer(b64) {
+    var binary = atob(b64);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes.buffer;
+  }
+
+  function _showVoiceFeedback() {
+    var el = $('sfl-voice-feedback');
+    if (el) el.classList.add('active');
+  }
+
+  function _hideVoiceFeedback() {
+    var interimActive = $('sfl-interim-bubble') && $('sfl-interim-bubble').classList.contains('active');
+    var audioActive = state.audioPlaying;
+    if (!interimActive && !audioActive) {
+      var el = $('sfl-voice-feedback');
+      if (el) el.classList.remove('active');
+    }
+  }
+
+  function _showInterim(text) {
+    var bubble = $('sfl-interim-bubble');
+    var textEl = $('sfl-interim-text');
+    if (!bubble || !textEl) return;
+    textEl.textContent = text;
+    bubble.classList.add('active');
+    _showVoiceFeedback();
+  }
+
+  function _hideInterim() {
+    var bubble = $('sfl-interim-bubble');
+    var textEl = $('sfl-interim-text');
+    if (bubble) bubble.classList.remove('active');
+    if (textEl) textEl.textContent = '';
+  }
+
+  function _playNextAudio() {
+    if (!state.audioQueue.length) {
+      state.audioPlaying = false;
+      var ind = $('sfl-audio-indicator');
+      if (ind) ind.classList.remove('active');
+      _hideVoiceFeedback();
+      return;
+    }
+    var item = state.audioQueue[0];
+    if (item.seq !== state.audioNextSeq) {
+      state.audioPlaying = false;
+      return;
+    }
+    state.audioQueue.shift();
+    state.audioNextSeq++;
+    state.audioPlaying = true;
+    var ind = $('sfl-audio-indicator');
+    if (ind) ind.classList.add('active');
+    _showVoiceFeedback();
+
+    var ctx = _getAudioCtx();
+    var src = ctx.createBufferSource();
+    src.buffer = item.buffer;
+    src.connect(ctx.destination);
+    src.onended = _playNextAudio;
+    src.start(0);
+  }
+
+  function _enqueueAudioChunk(b64, seq) {
+    var bytes = _b64ToArrayBuffer(b64);
+    _getAudioCtx().decodeAudioData(bytes, function (buffer) {
+      state.audioQueue.push({ seq: seq, buffer: buffer });
+      state.audioQueue.sort(function (a, b) { return a.seq - b.seq; });
+      if (!state.audioPlaying) _playNextAudio();
+    }, function (err) {
+      console.warn('[SFL Voice] Audio decode error:', err);
+    });
+  }
+
+  function _startLiveTranscript(lang) {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return;
+    var recog = new SR();
+    recog.lang = lang;
+    recog.interimResults = true;
+    recog.continuous = true;
+    recog.onresult = function (e) {
+      var interim = '';
+      for (var i = e.resultIndex; i < e.results.length; i++) {
+        if (!e.results[i].isFinal) interim += e.results[i][0].transcript;
+      }
+      if (interim) _showInterim(interim);
+    };
+    recog.onerror = function () {};
+    try { recog.start(); } catch (e) {}
+    state.liveRecog = recog;
+  }
+
+  function _stopLiveTranscript() {
+    if (state.liveRecog) {
+      try { state.liveRecog.stop(); } catch (e) {}
+      state.liveRecog = null;
+    }
+    _hideInterim();
+  }
+
+  // ─── VOICE WEBSOCKET ──────────────────────────────────────────────────────────
+
+  function connectVoice() {
+    if (state.voiceSocket && state.voiceSocket.readyState < 2) return;
+    var lang = (config.lang || navigator.language || 'en').split('-')[0].toLowerCase();
+    var url = _voiceWsUrl() + '?lang=' + lang + '&user_id=' + encodeURIComponent(state.userId || getUserId());
+    var ws = new WebSocket(url);
+    state.voiceSocket = ws;
+
+    ws.onopen = function () {
+      state.voiceConnected = true;
+    };
+    ws.onclose = function () {
+      state.voiceConnected = false;
+      state.voiceSocket = null;
+    };
+    ws.onerror = function () {
+      state.voiceConnected = false;
+    };
+    ws.onmessage = function (evt) {
+      var data;
+      try { data = JSON.parse(evt.data); } catch (e) { return; }
+      handleVoiceMessage(data);
+    };
+  }
+
+  function handleVoiceMessage(data) {
+    switch (data.type) {
+      case 'ping': break;
+      case 'session_init': break;
+
+      case 'transcript':
+        hideTyping();
+        _hideInterim();
+        if (data.text) {
+          appendMessage('user', '🎤 ' + data.text, null);
+          setAgentLabel('Thinking…');
+        } else if (data.error) {
+          setStatus(data.error);
+        }
+        break;
+
+      case 'typing':
+        showTyping(data.agent);
+        break;
+
+      case 'audio_chunk':
+        hideTyping();
+        if (state.audioCtx && state.audioCtx.state === 'suspended') state.audioCtx.resume();
+        _enqueueAudioChunk(data.audio_b64, data.seq);
+        break;
+
+      case 'message':
+        hideTyping();
+        setSendEnabled(true);
+        appendMessage('agent', data.content, data.agent);
+        setAgentLabel(data.agent || 'Assistant');
+        if (!state.isOpen) {
+          $('sfl-badge').style.display = 'block';
+        }
+        break;
+
+      case 'audio_done':
+        break;
+
+      case 'error':
+        hideTyping();
+        setSendEnabled(true);
+        appendMessage('agent', data.content || 'An error occurred.', null);
+        break;
+    }
+  }
+
+  // ─── PUSH-TO-TALK ────────────────────────────────────────────────────────────
+
+  function startRecording(evt) {
+    if (evt) evt.preventDefault();
+    if (state.isRecording) return;
+
+    if (state.audioCtx && state.audioCtx.state === 'suspended') state.audioCtx.resume();
+
+    connectVoice();
+
+    var lang = (config.lang || navigator.language || 'en').split('-')[0].toLowerCase();
+
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+      _resetAudioQueue();
+      state.audioChunks = [];
+      state.isRecording = true;
+      var micBtn = $('sfl-mic');
+      if (micBtn) micBtn.classList.add('recording');
+      _showVoiceFeedback();
+
+      _startLiveTranscript(lang + '-' + lang.toUpperCase());
+
+      var opts = {};
+      if (typeof MediaRecorder !== 'undefined') {
+        if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))     opts = { mimeType: 'audio/webm;codecs=opus' };
+        else if (MediaRecorder.isTypeSupported('audio/webm'))            opts = { mimeType: 'audio/webm' };
+        else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) opts = { mimeType: 'audio/ogg;codecs=opus' };
+      }
+
+      state.mediaRecorder = new MediaRecorder(stream, opts);
+      state.mediaRecorder.ondataavailable = function (e) {
+        if (e.data && e.data.size > 0) state.audioChunks.push(e.data);
+      };
+      state.mediaRecorder.onstop = function () {
+        state.isRecording = false;
+        var micBtn = $('sfl-mic');
+        if (micBtn) micBtn.classList.remove('recording');
+        stream.getTracks().forEach(function (t) { t.stop(); });
+        var blob = new Blob(state.audioChunks, { type: state.mediaRecorder.mimeType || 'audio/webm' });
+        _sendAudioBlob(blob);
+      };
+      state.mediaRecorder.start();
+    }).catch(function (err) {
+      state.isRecording = false;
+      var micBtn = $('sfl-mic');
+      if (micBtn) micBtn.classList.remove('recording');
+      setStatus('Mic access denied: ' + err.message);
+    });
+  }
+
+  function stopRecording(evt) {
+    if (evt) evt.preventDefault();
+    if (!state.isRecording || !state.mediaRecorder) return;
+    _stopLiveTranscript();
+    state.mediaRecorder.stop();
+  }
+
+  function _sendAudioBlob(blob) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var b64 = reader.result.split(',')[1];
+      var _doSend = function () {
+        if (state.voiceSocket && state.voiceSocket.readyState === WebSocket.OPEN) {
+          state.voiceSocket.send(JSON.stringify({ audio_b64: b64 }));
+          showTyping('Stayforlong');
+          setSendEnabled(false);
+        } else {
+          setTimeout(_doSend, 150);
+        }
+      };
+      _doSend();
+    };
+    reader.readAsDataURL(blob);
   }
 
   // ─── WEBSOCKET ──────────────────────────────────────────────────────────────
@@ -599,6 +977,18 @@
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && state.isOpen) closeChat();
     });
+
+    // ── Mic button (push-to-talk) ─────────────────────────────────────────────
+    if (config.enableVoice) {
+      var mic = $('sfl-mic');
+      if (mic) {
+        mic.addEventListener('mousedown',  function (e) { e.preventDefault(); startRecording(); });
+        mic.addEventListener('mouseup',    function (e) { e.preventDefault(); stopRecording(); });
+        mic.addEventListener('mouseleave', function ()  { stopRecording(); });
+        mic.addEventListener('touchstart', function (e) { e.preventDefault(); startRecording(); }, { passive: false });
+        mic.addEventListener('touchend',   function (e) { e.preventDefault(); stopRecording(); },  { passive: false });
+      }
+    }
   }
 
   // ─── INIT ────────────────────────────────────────────────────────────────────

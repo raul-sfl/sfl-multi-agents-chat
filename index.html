@@ -267,6 +267,7 @@
       wsUrl: _wsBase + '/ws',
       accentColor: '#f60e5f',
       secondaryColor: '#c40a4c',
+      enableVoice: true,
       // contextVars: GTM variable values forwarded as extra WS query params
       contextVars: {
         // user_id:    '{{User ID}}',       // uncomment and set in GTM
@@ -275,6 +276,7 @@
     };
   </script>
   <script src="./sfl-chat-widget.js"></script>
+  <!-- sfl-voice-widget.js is no longer needed: voice is built into sfl-chat-widget.js -->
 
   <!-- ── Scenario helpers ── -->
   <script>
@@ -324,11 +326,12 @@
       var jsUrl  = 'https://sfl-multi-agents-chat.up.railway.app/sfl-chat-widget.js';
 
       var snippet =
-        '<!-- Stayforlong Chat Widget -->\n' +
+        '<!-- Stayforlong Chat Widget (with voice) -->\n' +
         '<script>\n' +
         '  window.StayforlongChat = {\n' +
         '    wsUrl:       \'' + wsUrl + '\',\n' +
         '    accentColor: \'#f60e5f\',\n' +
+        '    enableVoice: true,\n' +
         '  };\n' +
         '<\/script>\n' +
         '<script src="' + jsUrl + '"><\/script>';
