@@ -4,8 +4,11 @@
   "description": "GTM-injectable Stayforlong chat widget",
   "scripts": {
     "start": "serve . --listen $PORT",
-    "build": "esbuild sfl-chat-widget.js --bundle --minify --outfile=dist/sfl-chat-widget.min.js",
-    "watch": "esbuild sfl-chat-widget.js --bundle --watch --outfile=dist/sfl-chat-widget.js"
+    "build": "esbuild sfl-chat-widget.js --bundle --minify --outfile=dist/sfl-chat-widget.min.js && esbuild sfl-voice-widget.js --bundle --minify --outfile=dist/sfl-voice-widget.min.js",
+    "build:text": "esbuild sfl-chat-widget.js --bundle --minify --outfile=dist/sfl-chat-widget.min.js",
+    "build:voice": "esbuild sfl-voice-widget.js --bundle --minify --outfile=dist/sfl-voice-widget.min.js",
+    "watch": "esbuild sfl-chat-widget.js --bundle --watch --outfile=dist/sfl-chat-widget.js",
+    "watch:voice": "esbuild sfl-voice-widget.js --bundle --watch --outfile=dist/sfl-voice-widget.js"
   },
   "dependencies": {
     "serve": "^14.0.0"
