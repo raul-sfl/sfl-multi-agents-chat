@@ -321,6 +321,7 @@
     MAX_RECONNECT: 3,
     RECONNECT_DELAY: 2500,
     shadow: null,
+    _pingInterval: null,
   };
 
   // ─── USER IDENTITY ──────────────────────────────────────────────────────────
@@ -457,6 +458,7 @@
     ws.onclose = function () {
       state.isConnected = false;
       setSendEnabled(false);
+      _stopPing();
       if (state.isOpen && state.reconnectAttempts < state.MAX_RECONNECT) {
         state.reconnectAttempts++;
         setStatus('Reconnecting (' + state.reconnectAttempts + '/' + state.MAX_RECONNECT + ')...');
@@ -486,6 +488,26 @@
     input.value = '';
     input.style.height = 'auto';
     setSendEnabled(false);
+
+    // Send periodic client-side pings while waiting for a response so Railway's
+    // proxy doesn't close the connection due to client-side inactivity.
+    _startPing();
+  }
+
+  function _startPing() {
+    _stopPing();
+    state._pingInterval = setInterval(function () {
+      if (state.socket && state.socket.readyState === 1) {
+        state.socket.send(JSON.stringify({ type: 'ping' }));
+      }
+    }, 15000);
+  }
+
+  function _stopPing() {
+    if (state._pingInterval) {
+      clearInterval(state._pingInterval);
+      state._pingInterval = null;
+    }
   }
 
   // ─── SERVER MESSAGE HANDLER ─────────────────────────────────────────────────
@@ -513,6 +535,7 @@
       case 'message':
         hideTyping();
         setSendEnabled(true);
+        _stopPing();
         appendMessage('agent', data.content, data.agent);
         setAgentLabel(data.agent || 'Assistant');
         // Show unread badge if chat is closed
@@ -524,6 +547,7 @@
       case 'error':
         hideTyping();
         setSendEnabled(true);
+        _stopPing();
         appendMessage('agent', data.content || 'An error occurred.', null);
         break;
     }
