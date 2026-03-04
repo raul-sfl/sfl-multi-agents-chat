@@ -431,6 +431,7 @@
     audioNextSeq: 0,
     audioPlaying: false,
     liveRecog: null,
+    _streamingBubble: null,
   };
 
   // ─── USER IDENTITY ──────────────────────────────────────────────────────────
@@ -910,12 +911,39 @@
         showTyping(data.agent);
         break;
 
+      case 'chunk':
+        if (!state._streamingBubble) {
+          hideTyping();
+          var wrapper = document.createElement('div');
+          wrapper.className = 'sfl-msg agent';
+          if (data.agent && data.agent !== 'Stayforlong Assistant') {
+            var label = document.createElement('div');
+            label.className = 'sfl-agent-label';
+            label.textContent = data.agent;
+            wrapper.appendChild(label);
+          }
+          var bubble = document.createElement('div');
+          bubble.className = 'sfl-bubble';
+          wrapper.appendChild(bubble);
+          $('sfl-messages').insertBefore(wrapper, $('sfl-typing'));
+          state._streamingBubble = bubble;
+        }
+        state._streamingBubble.textContent += data.content;
+        $('sfl-messages').scrollTop = $('sfl-messages').scrollHeight;
+        break;
+
       case 'message':
         hideTyping();
         setSendEnabled(true);
         _stopPing();
-        appendMessage('agent', data.content, data.agent);
-        setAgentLabel(data.agent || 'Assistant');
+        if (state._streamingBubble) {
+          state._streamingBubble.textContent = data.content;
+          state._streamingBubble = null;
+          setAgentLabel(data.agent || 'Assistant');
+        } else {
+          appendMessage('agent', data.content, data.agent);
+          setAgentLabel(data.agent || 'Assistant');
+        }
         // Show unread badge if chat is closed
         if (!state.isOpen) {
           $('sfl-badge').style.display = 'block';
